@@ -48,7 +48,7 @@ Currently, I work as a consultant focused on **Bitrix24, API Integrations, and A
 ---
 
 ### 📫 Let's connect?
-I'm always open to discussing new automation architectures or opportunities in DevOps and Data.
+I'm always open to discussing new automation architectures or opportunities in DevOps, Data and Automation.
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/matheus-rodrigues-de-lyra-7a8160248/)
 [![Email](https://img.shields.io/badge/Email-Contact_Me-D14836?style=flat&logo=gmail)](mailto:matheus.rdrigues2@gmail.com)
