@@ -1,4 +1,4 @@
-# Hello, I'm Matheus De Lyra 🚀
+# Hello, I'm Matheus Lyra 🚀
 
 ### Automation & Integration Engineer | n8n, AI & Infrastructure Specialist
 
