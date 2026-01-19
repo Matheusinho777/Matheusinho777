@@ -2,7 +2,7 @@
 
 ### Automation & Integration Engineer | n8n, AI & Infrastructure Specialist
 
-I am passionate about transforming complex manual processes into efficient, autonomous workflows. My expertise lies in bridging **Low-Code (n8n)** with AI Assisted**Coding (Python/JS)** and **Infrastructure (Docker/Linux)** to build robust solutions that drive **Process Automation and Platform Cost Reduction**.
+I am passionate about transforming complex manual processes into efficient, autonomous workflows. My expertise lies in bridging **Low-Code (n8n)** with AI Assisted **Coding (Python/JS)** and **Infrastructure (Docker/Linux)** to build robust solutions that drive **Process Automation and Platform Cost Reduction**.
 
 Currently, I work as a consultant focused on **Bitrix24, API Integrations, and AI Agents**.
 
