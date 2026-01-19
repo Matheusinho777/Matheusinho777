@@ -1,0 +1,882 @@
+{
+  "name": "Technical Challenge 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 3,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/xxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -176
+      ],
+      "id": "99256378-667e-421d-9cf8-1ca2a270dc1f",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "MbHpQAv1WC1QynKY",
+          "name": "xxxxxxxxxxxx"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "action": "generate"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        512,
+        -272
+      ],
+      "id": "ea266a58-a187-48b5-b6d8-d3cb0ef0d136",
+      "name": "generateUUID"
+    },
+    {
+      "parameters": {
+        "jsCode": "items.forEach(item => {\n  const fieldsToCheck = [\"Email\", \"Name\", \"Amount\", \"Currency\", \"Transaction UUID\"];\n\n  const emptyFields = fieldsToCheck.filter(field => {\n    const value = item.json[field];\n    return value === \"\" || value === null || value === undefined;\n  });\n\n  item.json.emptyFields = emptyFields;\n  item.json.emptyCount = emptyFields.length;  // \n});\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        -16
+      ],
+      "id": "b34bcace-acff-42ee-b778-91cfded3dd48",
+      "name": "emptyFieldName"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('getRow').item.json.adminEmail }}",
+        "subject": "=🚨ERROR🚨: Missing information in Gamdom Data Sheet",
+        "message": "=The row number {{ $('getRow').item.json.row_number }} is missing this information: {{ $json.emptyFields }}, please check this out! https://docs.google.com/spreadsheets/dxxxxxxxxxxxcd_nVwP_tsq1LUxtGw/edit?gid=0#gid=0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1392,
+        -16
+      ],
+      "id": "8cae97a3-26da-43d3-afbb-38845257ed62",
+      "name": "errorNotification",
+      "webhookId": "f8bb41cc-ca6a-4a22-b3be-e34f17e934a6",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AIctYrngqfaZp3fi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "sendTo": "={{ $json.adminEmail }}",
+        "subject": "Approval Request",
+        "message": "=The client \"{{ $json.Name }}\", with the email \"{{ $json.Email }}\" is making a transaction worth of {{ $json.Amount }}{{ $json.Currency }}.\nID of the transaction: {{ $json['Transaction UUID'] }}.",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1184,
+        -208
+      ],
+      "id": "70d010de-0b7a-40a7-a244-55c1191693f5",
+      "name": "sendApproval",
+      "webhookId": "76a09989-bb45-45d6-9952-359095d50e4d",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "efRYVknhJijDn995",
+          "name": "Gmail Matheus"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d3a339c-bba1-40c4-b637-cac3a6362d04",
+              "leftValue": "={{ $json.data.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1392,
+        -208
+      ],
+      "id": "62391f47-edf8-4096-86e5-5564257adcaa",
+      "name": "approvedDecision"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rsxxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1326007414,
+          "mode": "list",
+          "cachedResultName": "logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rssSMQAMfKu04E1eWcqudkC2__d_nVwP_tsq1LUxtGw/edit#gid=1326007414"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Transaction UUID": "={{ $('validData').item.json['Transaction UUID'] }}",
+            "Status": "Rejected"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Transaction UUID",
+              "displayName": "Transaction UUID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1600,
+        -112
+      ],
+      "id": "dc862a74-e550-4927-8536-053a47aa9e19",
+      "name": "statusRejected",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IHuyEqrPbFx1E0IQ",
+          "name": "Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8f9cea62-a4cd-4698-b0d0-c76e1b14edf5",
+              "leftValue": "={{ $json.Email && $json.Name && $json.Amount && $json.Currency && $json[\"Transaction UUID\"] ? true : false }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        944,
+        -160
+      ],
+      "id": "024e709e-7c11-4d5a-b71f-7bffc1cabc90",
+      "name": "validData"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e6042a52-0c01-46a0-a227-d2e763bcdd0f",
+              "leftValue": "={{ $json['Transaction UUID'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -176
+      ],
+      "id": "afef8fb7-bb3f-43fd-bb92-e2fff398e4cb",
+      "name": "emptyUUID"
+    },
+    {
+      "parameters": {
+        "content": "Automation Engineer Task (n8n)\n\nObjective:\nEvaluate your ability to design and implement an automation workflow using\nn8n.\n\nTask Description:\nCreate an n8n workflow that automates the following process:\n1. Trigger: The workflow should start when a new entry is added to\na Google Sheet (or another data source).\n2. Data Validation:\n• Check for required fields such as email, name, or transaction\nID.\n• If data is invalid, send an error notification to a Slack\nchannel or email.\n3. Approval Step:\n• Send a notification (Slack, email, or n8n approval node) to a\ndesignated person to approve or reject the entry.\n• If rejected, log the rejection and notify the submitter.\n• If approved, continue to the next step.\n4. Action:\n• Send the approved data to an external API endpoint (mock or\nreal) using an HTTP request node.\n• Log the success/failure status in another Google Sheet or\nNotion database.\n5. Notifications:\n• Send a summary message to a Slack channel (or email) with the\nresult of the workflow execution.\n\nDeliverables:\n• Exported n8n workflow JSON file.\n• Brief README describing:\n• Workflow logic and design decisions.\n• Any assumptions made.\n• How to test or run the workflow.\n\nEvaluation Criteria:\n• Logical workflow design and clarity.\n• Proper implementation of approval and error handling.\n• Efficient use of n8n nodes and integrations.\n• Clear documentation and workflow readability.",
+        "height": 800,
+        "width": 832
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -1280
+      ],
+      "id": "d2f75476-a2af-4f6d-a47a-25992043ee59",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "Check!\n",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -1136
+      ],
+      "id": "6e01c174-9181-468a-9777-271d4585588e",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "\n\nCheck!\n",
+        "height": 80,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -1072
+      ],
+      "id": "3c8bd536-bba2-4f85-b74a-636667a87279",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\nCheck!\n",
+        "height": 144,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -1008
+      ],
+      "id": "ef0670b9-74c2-4750-9aed-537b64cd964e",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('validData').item.json.Email }}",
+        "subject": "Transaction Rejected",
+        "message": "=Dear customer {{ $('validData').item.json.Name }}, unfortunatelly your transaction of {{ $('emptyUUID').item.json.Amount }}{{ $('emptyUUID').item.json.Currency }} was rejected by our staff, please contact us if you have any further interest in xxxxxx.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1808,
+        -112
+      ],
+      "id": "bf015954-6162-442d-8498-635f9244067d",
+      "name": "sendRejectedEmail",
+      "webhookId": "de6ffaa8-e641-4761-952d-2fe9c12a169a",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "efRYVknhJijDn995",
+          "name": "Gmail Matheus"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n\n\nCheck!\n",
+        "height": 112,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -896
+      ],
+      "id": "3d2d13db-9ee1-4168-a4f0-4234e472a889",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('getRow').item.json.adminEmail }}",
+        "subject": "=Summary of Transaction from  {{ $('getRow').item.json.Name }}",
+        "message": "=Name: {{ $('getRow').item.json.Name }}\nAmount: {{ $('getRow').item.json.Amount}}{{ $('getRow').item.json.Currency }}\nAge: {{ $('agifyAPI').item.json.age }}\nApproved: {{ $('sendApproval').item.json.data.approved }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1968,
+        -304
+      ],
+      "id": "ed7cec21-df02-4bbf-ae1e-46ade1756592",
+      "name": "sendSummary",
+      "webhookId": "fc10d318-430e-4ee0-90a2-fb134074aeb4",
+      "retryOnFail": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "efRYVknhJijDn995",
+          "name": "Gmail Matheus"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n\n\nCheck!\n",
+        "height": 112,
+        "width": 150,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -816
+      ],
+      "id": "5af42487-ab85-44e9-930d-9de3da9f5284",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "##  Data entry and first validation",
+        "height": 592,
+        "width": 720,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -352
+      ],
+      "id": "efd6578d-a4ce-4df5-a0ae-65363ad380d4",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "##  Generate UUID + second data validation",
+        "height": 592,
+        "width": 672,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -352
+      ],
+      "id": "a3ec7814-29da-4fc6-b6d2-06560e1ddf97",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "##  Send data validation + Approval by adminEmail + Summary and Status log",
+        "height": 592,
+        "width": 992,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1152,
+        -352
+      ],
+      "id": "628c3cd4-a73c-4983-862d-a666253ae738",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "url": "https://api.agify.io",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $('validData').item.json.Name }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1616,
+        -304
+      ],
+      "id": "6981efd0-fc94-43ae-bd87-4349a2adfe7c",
+      "name": "agifyAPI",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rsxxxxxxxxxxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1326007414,
+          "mode": "list",
+          "cachedResultName": "logs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rssSMQAMfKu04E1eWcqudkC2__d_nVwP_tsq1LUxtGw/edit#gid=1326007414"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status": "Approved",
+            "Transaction UUID": "={{ $('validData').item.json['Transaction UUID'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Transaction UUID",
+              "displayName": "Transaction UUID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1792,
+        -304
+      ],
+      "id": "3b731025-7a00-4fa1-a20a-62094b35cf3f",
+      "name": "appendStatusLog",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IHuyEqrPbFx1E0IQ",
+          "name": "Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1rxxxxxxxxxxxxxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rssSMQAMfKu04E1eWcqudkC2__d_nVwP_tsq1LUxtGw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Transaction UUID": "={{ $json.data }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Amount",
+              "displayName": "Amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Currency",
+              "displayName": "Currency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Transaction UUID",
+              "displayName": "Transaction UUID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        704,
+        -272
+      ],
+      "id": "c13bcbff-3cbc-4993-a303-d64e2922463a",
+      "name": "updateRow with created UUID",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IHuyEqrPbFx1E0IQ",
+          "name": "Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/cccxxxxxxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rssSMQAMfKu04E1eWcqudkC2__d_nVwP_tsq1LUxtGw/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email",
+              "lookupValue": "={{ $json.Email }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        96,
+        -176
+      ],
+      "id": "ad373a94-5708-430a-85df-52260fee9ba1",
+      "name": "getRow",
+      "retryOnFail": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IHuyEqrPbFx1E0IQ",
+          "name": "Sheets"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "getRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generateUUID": {
+      "main": [
+        [
+          {
+            "node": "updateRow with created UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emptyFieldName": {
+      "main": [
+        [
+          {
+            "node": "errorNotification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendApproval": {
+      "main": [
+        [
+          {
+            "node": "approvedDecision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "approvedDecision": {
+      "main": [
+        [
+          {
+            "node": "agifyAPI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "statusRejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validData": {
+      "main": [
+        [
+          {
+            "node": "sendApproval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "emptyFieldName",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emptyUUID": {
+      "main": [
+        [
+          {
+            "node": "generateUUID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "validData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "statusRejected": {
+      "main": [
+        [
+          {
+            "node": "sendRejectedEmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "agifyAPI": {
+      "main": [
+        [
+          {
+            "node": "appendStatusLog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appendStatusLog": {
+      "main": [
+        [
+          {
+            "node": "sendSummary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "updateRow with created UUID": {
+      "main": [
+        [
+          {
+            "node": "validData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getRow": {
+      "main": [
+        [
+          {
+            "node": "emptyUUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ccd0901-7145-458a-b465-57d34a38f10c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f563112dc14c32a4d29847fe131a82bf0875e46e5013ab27e704379e16f626f7"
+  },
+  "id": "lOYOe5OEsgCbZjuE",
+  "tags": []
+}

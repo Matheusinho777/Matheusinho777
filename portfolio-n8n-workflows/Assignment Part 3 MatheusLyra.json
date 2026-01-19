@@ -1,0 +1,770 @@
+{
+  "name": "Assignment Part 3 RubyLabs MatheusLyra",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "0ff8ecce-452e-4893-89ae-b69fafcb8567",
+        "authentication": "basicAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1408,
+        -48
+      ],
+      "id": "0eacf062-f206-4c77-a7cc-9f78bcdd44ce",
+      "name": "Webhook",
+      "webhookId": "0ff8ecce-452e-4893-89ae-b69fafcb8567",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "afYROjuIVdOlEoN9",
+          "name": "auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://date.nager.at/api/v3/AvailableCountries",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -736,
+        -224
+      ],
+      "id": "286a0e4d-7b94-4e4b-9b02-9fe1266a7e1e",
+      "name": "getCountryAPI"
+    },
+    {
+      "parameters": {
+        "url": "=https://date.nager.at/api/v3/PublicHolidays/{{ $('Webhook').item.json.query.after_date.slice(0, 4) }}/{{ $json.countryCode }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -64,
+        -288
+      ],
+      "id": "35c1b0e3-9cd9-43c3-a7d4-f05f08cfdf7a",
+      "name": "getCountryHolidays"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8e58dba2-7228-4292-9caf-bddcf6b9ee7a",
+              "leftValue": "={{ $json.name.toLowerCase() }}",
+              "rightValue": "={{ $('Webhook').item.json.query.country_name.toLowerCase() }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -560,
+        -224
+      ],
+      "id": "2af221e3-2de8-4cc7-b8a8-ec872c963b32",
+      "name": "validCountry",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "14b29ee7-e1b0-42a4-804a-29d05ac82b50",
+              "leftValue": "={{ $json.date }}",
+              "rightValue": "={{ $('Webhook').item.json.query.after_date }}",
+              "operator": {
+                "type": "dateTime",
+                "operation": "afterOrEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        -288
+      ],
+      "id": "dd9ea077-ea8d-4409-9f1d-1bd233bb7811",
+      "name": "nextHolidays"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.query.formatter }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "161c7a0a-46f4-4ac5-a7fb-378320979cb1"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Null"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "a3678fa4-d373-4bc3-a0c2-02ff88d43a9f",
+                    "leftValue": "={{ $('Webhook').item.json.query.formatter.toLowerCase() }}",
+                    "rightValue": "alternating_case_formatter",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "alternating_case_formatter"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b3cb040f-23d2-40dc-8898-49d170245b7d",
+                    "leftValue": "={{ $('Webhook').item.json.query.formatter }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "INVALID FORMATTER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        464,
+        -208
+      ],
+      "id": "01488473-7105-41ea-8637-f4f52b2d4b46",
+      "name": "formatter"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        -176
+      ],
+      "id": "217f9d34-1f4c-4d33-a599-a7b8b14742dc",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "4d1369b6-e97f-49ce-a260-211348f26690",
+              "leftValue": "={{ $json.isEmpty() }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -320,
+        -224
+      ],
+      "id": "b65f56cf-ee71-4222-8e9e-8efe15983c44",
+      "name": "isValid?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        720,
+        0
+      ],
+      "id": "b6f7259e-796b-4c8f-a8d3-fd850cb6d08f",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a912b837-67e5-4707-a7b9-4b004dccd35f",
+              "leftValue": "={{ $json.query.country_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c4ef4c6d-87f8-49f9-90b6-63b28a8f991a",
+              "leftValue": "={{ $json.query.after_date}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1184,
+        -48
+      ],
+      "id": "4516679a-d915-4ba6-82a7-45e0481b795f",
+      "name": "requiredParameters"
+    },
+    {
+      "parameters": {
+        "content": "## Webhook + requiredParameters checker + after_date format checker + get all available countries in the API and filter the one recieved through the webhook ",
+        "height": 760,
+        "width": 1040,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1424,
+        -400
+      ],
+      "id": "37cc0c86-c756-4212-aebe-145786a7f9eb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## validCountry checker + get all holidays after the specified date from that valid country + pathway for the formatter",
+        "height": 760,
+        "width": 980,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        -400
+      ],
+      "id": "040459a9-a783-4179-8bee-f0e1cdf94dea",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## formatter checker + webhook response",
+        "height": 760,
+        "width": 960,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -400
+      ],
+      "id": "cdf365ce-3924-470b-9f75-d3675edfed4a",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "jsCode": "// map all the input data and put in the required structure\nconst holidays = $input.all().map(item=>{\n  return {\n    date: item.json.date,\n    holiday_name : item.json.localName\n    \n  };\n});\n\n// return the new strucutured data\nreturn [{\n  json: {\n    holidays: holidays\n  }\n  \n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -320
+      ],
+      "id": "1dab014f-85fe-44f0-9086-a207c15ad9c9",
+      "name": "defaultData"
+    },
+    {
+      "parameters": {
+        "jsCode": "// create the logic to turn the character of the string in upperCase and lowerCase one after the other.\nfunction alternatingCase(str) {\n  return str.split('').map((char, index) =>\n    index % 2 === 0 ? char.toUpperCase() : char.toLowerCase()\n  ).join('');\n}\n\n// map the input data and use the logic created to structure the data\nconst holidays = $input.all().map(item => {\n  return {\n    date: item.json.date,\n    holiday_name: alternatingCase(item.json.localName)\n  };\n});\n\n// return the new structured data\nreturn [{\n  json: {\n    holidays\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        -160
+      ],
+      "id": "4df3b47e-66f6-477b-9044-6fd2409bfc4a",
+      "name": "alternatingCaseData"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fddbc2c9-b714-4752-b37d-d30ee736fe5d",
+              "leftValue": "={{$json.query.after_date.match(/^\\d{4}-\\d{2}-\\d{2}$/) !== null}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -960,
+        -144
+      ],
+      "id": "d103dfc2-fc73-4d63-bdd2-e85e356cf64c",
+      "name": "acceptedDateFormat"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1264,
+        160
+      ],
+      "id": "655e945f-e14c-412e-b7a7-982c5352ac01",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1aa079f-899c-4816-8bd7-4dae86ac6b8b",
+              "name": "ERROR",
+              "value": "Invalid country_name",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -48
+      ],
+      "id": "9b14378a-1537-415d-b096-3a8e205e0ec5",
+      "name": "invalid country_name"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1aa079f-899c-4816-8bd7-4dae86ac6b8b",
+              "name": "ERROR",
+              "value": "invalid after_date format",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -496,
+        112
+      ],
+      "id": "868f7da3-d622-421f-94f4-e12596a97277",
+      "name": "invalid after_date format"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1aa079f-899c-4816-8bd7-4dae86ac6b8b",
+              "name": "ERROR",
+              "value": "Missing required parameters",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -736,
+        224
+      ],
+      "id": "10c3fe50-3ab3-4f03-ac8c-f1de9174823c",
+      "name": "Missing required parameters"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1aa079f-899c-4816-8bd7-4dae86ac6b8b",
+              "name": "ERROR",
+              "value": "Unsupported formatter",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        912,
+        0
+      ],
+      "id": "2c358a2f-28b8-4b32-a93a-eebbcc7a7ea7",
+      "name": "Unsupported formatter"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "requiredParameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getCountryAPI": {
+      "main": [
+        [
+          {
+            "node": "validCountry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validCountry": {
+      "main": [
+        [
+          {
+            "node": "isValid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getCountryHolidays": {
+      "main": [
+        [
+          {
+            "node": "nextHolidays",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nextHolidays": {
+      "main": [
+        [
+          {
+            "node": "formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "formatter": {
+      "main": [
+        [
+          {
+            "node": "defaultData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "alternatingCaseData",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "isValid?": {
+      "main": [
+        [
+          {
+            "node": "getCountryHolidays",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "invalid country_name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Unsupported formatter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "requiredParameters": {
+      "main": [
+        [
+          {
+            "node": "acceptedDateFormat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Missing required parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "defaultData": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "alternatingCaseData": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "acceptedDateFormat": {
+      "main": [
+        [
+          {
+            "node": "getCountryAPI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "invalid after_date format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "invalid country_name": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "invalid after_date format": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Missing required parameters": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Unsupported formatter": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d44869db-0af4-41fb-80ae-de8456516a95",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f563112dc14c32a4d29847fe131a82bf0875e46e5013ab27e704379e16f626f7"
+  },
+  "id": "PpDok4Be6hHAkNPg",
+  "tags": []
+}

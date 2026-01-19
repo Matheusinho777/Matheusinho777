@@ -1,0 +1,790 @@
+{
+  "name": "Technical Challenge REMWaste",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "006c3ab9-a542-4b39-8238-6faa1c586e27",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        -48
+      ],
+      "id": "a49d4b31-58d1-4450-a5a6-2cb37ee9d7c8",
+      "name": "Webhook",
+      "webhookId": "006c3ab9-a542-4b39-8238-6faa1c586e27"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7e8f0e5e-0121-48bf-9092-73ac280ed39e",
+              "name": "full_name",
+              "value": "={{ $json.body.form_response.answers[0].text }} {{ $json.body.form_response.answers[1].text }}",
+              "type": "string"
+            },
+            {
+              "id": "9e9c47ba-42d1-4c99-b2a1-a989807241f8",
+              "name": "email",
+              "value": "={{ $json.body.form_response.answers[3].email }}",
+              "type": "string"
+            },
+            {
+              "id": "9f34be3f-c282-400d-8c0a-94fb6e7268b7",
+              "name": "phone",
+              "value": "={{ $json.body.form_response.answers[2].phone_number }}",
+              "type": "string"
+            },
+            {
+              "id": "2f71246a-af5c-4d5e-8940-85895ad88c85",
+              "name": "company_size",
+              "value": "={{ $json.body.form_response.answers[4].choice.label }}",
+              "type": "string"
+            },
+            {
+              "id": "99108d7c-bc15-434b-abe6-b717167585f8",
+              "name": "budget",
+              "value": "={{ $json.body.form_response.answers[5].number }}",
+              "type": "number"
+            },
+            {
+              "id": "cbd44cf3-834e-4ce9-af1c-ab80c123bc7d",
+              "name": "interest_level",
+              "value": "={{ $json.body.form_response.answers[6].choice.label }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        -48
+      ],
+      "id": "f71e29c0-681a-41d3-9625-70a0369c685d",
+      "name": "setFields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "24515c23-13cd-4ade-b359-d0b8ec543aba",
+                    "leftValue": "={{ $json.temperature }}",
+                    "rightValue": "Hot",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b6815997-c859-4e12-b5f5-29d188ec72d1",
+                    "leftValue": "={{ $json.temperature }}",
+                    "rightValue": "Warm",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm Lead"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.temperature }}",
+                    "rightValue": "Cold",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "2fbf7074-3854-4c32-9a66-61dcbee9e3d5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cold Lead"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1008,
+        -160
+      ],
+      "id": "1daf4f8a-c49e-488d-bcff-88d33650dc29",
+      "name": "Lead"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "39526719-730b-4d03-a71e-c0cd11e3fd11",
+              "name": "allExist",
+              "value": "={{ $json.allExist }}",
+              "type": "boolean"
+            },
+            {
+              "id": "14a4e218-9898-4860-aeb0-854d33ba2749",
+              "name": "anyMissing",
+              "value": "={{ $json.anyMissing }}",
+              "type": "boolean"
+            },
+            {
+              "id": "7bd96368-67fd-42d1-b20f-6ff86c96651d",
+              "name": "missingFields",
+              "value": "={{ $json.missingFields }}",
+              "type": "array"
+            },
+            {
+              "id": "7396bca4-ddf9-4bfe-b686-2e7f5fe60fd9",
+              "name": "validFields",
+              "value": "={{ $json.validFields }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        144,
+        -48
+      ],
+      "id": "7f84ada8-026e-493c-9096-9027d2d9abe6",
+      "name": "setConditions"
+    },
+    {
+      "parameters": {
+        "jsCode": "const fields = ['full_name', 'email', 'budget', 'interest_level'];\nconst item = $input.first().json;\nconst result = {\n  allExist: true,\n  anyMissing: false,\n  missingFields: [],\n  validFields: []\n};\n\nfor (const field of fields) {\n  const value = item[field];\n  const exists = value !== undefined && value !== null && value !== '';\n\n  if (!exists) {\n    result.allExist = false;\n    result.anyMissing = true;\n    result.missingFields.push(field);\n  } else {\n    result.validFields.push(field);\n  }\n}\n\nreturn [{ json: result }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        -48
+      ],
+      "id": "98876397-4638-4dd8-a405-941a04662b95",
+      "name": "Conditional"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f3e28163-fb34-4dac-8616-ff30b3ade38f",
+              "leftValue": "={{ $json.allExist }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        368,
+        -48
+      ],
+      "id": "09bb5b32-e78d-4bb1-9dfb-b15381014c90",
+      "name": "allExist?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const budget = $('setFields').first().json.budget;\nconst interest_level = $('setFields').first().json.interest_level;\n\nlet classification;\n\nif (budget > 6000 && interest_level === 'High') {\n  classification = 'Hot';\n} else if (budget >= 3000 && interest_level !== 'Low') {\n  classification = 'Warm';\n} else {\n  classification = 'Cold';\n}\n\nreturn [{\n  json: {\n    budget,\n    classification\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -160
+      ],
+      "id": "dbaf8f37-b0bd-44a5-90b0-3f0e71504224",
+      "name": "leadTemperature"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1xxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UAsghk-GeNfo_H_QvbR1to96QF6Uw7JBliwA9xUJ5SY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "full_name": "={{ $('setFields').item.json.full_name }}",
+            "email": "={{ $('setFields').item.json.email }}",
+            "phone": "={{ $('setFields').item.json.phone }}",
+            "company_size": "={{ $('setFields').item.json.company_size }}",
+            "budget": "={{ $('setFields').item.json.budget }}",
+            "interest_level": "={{ $('setFields').item.json.interest_level }}",
+            "temperature": "={{ $json.classification }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "full_name",
+              "displayName": "full_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "budget",
+              "displayName": "budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_size",
+              "displayName": "company_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "interest_level",
+              "displayName": "interest_level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "temperature",
+              "displayName": "temperature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        832,
+        -160
+      ],
+      "id": "0bdebf13-bbd4-4a16-9033-fb5122b772e4",
+      "name": "leadsSheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xnRKobPlGd8ge7Ww",
+          "name": "matheus Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "https://app.slack.com/client/xxxxxxx/xxxxxxx",
+          "mode": "url"
+        },
+        "text": "=New Hot Lead: {{ $json.full_name }} , Budget £{{ $json.budget }}, Interest: {{ $json.interest_level }} – Check REMWaste Leads for details.\n\nhttps://docs.google.com/spreadsheets/d/xxxxxxxxxxxxxxxxxxxxxxxx",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        -304
+      ],
+      "id": "36e3e112-62a4-48d5-b5d0-719d97027fd7",
+      "name": "sendNotification",
+      "webhookId": "4b147f41-39fc-4cdb-9fc2-52f6ca8a3ced",
+      "credentials": {
+        "slackApi": {
+          "id": "MqKURZMPH3WAcywk",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1488,
+        -304
+      ],
+      "id": "5b6962f2-67fd-449b-bf63-b0b4143552a6",
+      "name": "Wait",
+      "webhookId": "4c3fae24-e4c1-49af-88b9-36dd34ca6f37"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('leadsSheet').item.json.email }}",
+        "subject": "Thank you for reaching to us!",
+        "message": "=Hi {{ $('leadsSheet').item.json.full_name }}, hope you're having a great day. It will be a pleasure to solve your problem, soon one of our team will text you, see you soon!",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1680,
+        -304
+      ],
+      "id": "bf598874-e2ae-4a1b-9a7c-01c22f0ed299",
+      "name": "Gmail",
+      "webhookId": "ace02f38-1e53-4c94-a26f-cccc8f512807",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AIctYrngqfaZp3fi",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "primary-production-818e.up.railway.app",
+            "user-agent": "Typeform Webhooks",
+            "content-length": "3385",
+            "accept-encoding": "gzip",
+            "content-type": "application/json",
+            "traceparent": "00-cab4ddc1fb1b2e1ae9e13d3db87dc0d3-46eb615df3965de5-01",
+            "x-forwarded-for": "18.204.78.134",
+            "x-forwarded-host": "primary-production-818e.up.railway.app",
+            "x-forwarded-proto": "https",
+            "x-railway-edge": "railway/us-east4-eqdc4a",
+            "x-railway-request-id": "88-pm6z0SfqfwPAwCx5-qw",
+            "x-real-ip": "18.204.78.134",
+            "x-request-start": "1751589368523"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "event_id": "01JZ9DSCCJTKN5F01X2W7BKP86",
+            "event_type": "form_response",
+            "form_response": {
+              "form_id": "eWD99wWp",
+              "token": "7vw9tts8rl6qo09ek7vw9kn6hwjoz8gh",
+              "landed_at": "2025-07-04T00:34:39Z",
+              "submitted_at": "2025-07-04T00:36:08Z",
+              "definition": {
+                "id": "eWD99wWp",
+                "title": "My new form",
+                "fields": [
+                  {
+                    "id": "BHm5U4Xm5zgY",
+                    "ref": "87a61045-a40d-4937-ab29-07ae07c15739",
+                    "type": "short_text",
+                    "title": "First name",
+                    "properties": {}
+                  },
+                  {
+                    "id": "VwPqsp1DYpuo",
+                    "ref": "9031e309-1383-4b97-a8c2-3832973f9663",
+                    "type": "short_text",
+                    "title": "Last name",
+                    "properties": {}
+                  },
+                  {
+                    "id": "pEmdCoYh0EGk",
+                    "ref": "a9751cd5-24fc-40d6-ade4-f8e6ecffdc2f",
+                    "type": "phone_number",
+                    "title": "Phone number",
+                    "properties": {}
+                  },
+                  {
+                    "id": "vNEL03Pvs2X0",
+                    "ref": "11e01d13-def2-448a-b816-cba50a92036a",
+                    "type": "email",
+                    "title": "Email",
+                    "properties": {}
+                  },
+                  {
+                    "id": "hGlCLlE1Swjo",
+                    "ref": "129392af-90ae-4738-9683-2b57e4ebb283",
+                    "type": "multiple_choice",
+                    "title": "What is your company size?",
+                    "properties": {},
+                    "choices": [
+                      {
+                        "id": "eLoIl7y7o2Ub",
+                        "ref": "13a12eba-b76a-4f01-b0cf-31798a13a21a",
+                        "label": "Large (200+)"
+                      },
+                      {
+                        "id": "X5OHM1IgwSUY",
+                        "ref": "bfa0a584-db84-4432-b95c-fe37f26a666f",
+                        "label": "Medium (50-200)"
+                      },
+                      {
+                        "id": "fM3wanUMAgIT",
+                        "ref": "f3c513ef-3f7d-4083-813f-27b757800923",
+                        "label": "Small (1-50)"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "jXsQLqQ0gESH",
+                    "ref": "049a9354-2db7-4377-b872-ed357d615f9a",
+                    "type": "number",
+                    "title": "How much is your budget?",
+                    "properties": {}
+                  },
+                  {
+                    "id": "beb4sxr3DqdD",
+                    "ref": "f8e5e9b9-787c-447c-981d-6748aa8cfef9",
+                    "type": "multiple_choice",
+                    "title": "How interested are you in REMWaste?",
+                    "properties": {},
+                    "choices": [
+                      {
+                        "id": "kmmE4xXkiU9Z",
+                        "ref": "95a752da-7f9d-4a8a-a91b-fe80ca9baada",
+                        "label": "High"
+                      },
+                      {
+                        "id": "b0o2i66s6g24",
+                        "ref": "1c004ea5-67e0-4c6d-ab4a-dda5ce43d1ef",
+                        "label": "Medium"
+                      },
+                      {
+                        "id": "OKSKTKsw64U3",
+                        "ref": "84da2c4b-d1fb-4404-b0d7-39a264bc5c97",
+                        "label": "Low"
+                      }
+                    ]
+                  }
+                ],
+                "endings": [
+                  {
+                    "id": "DefaultTyScreen",
+                    "ref": "default_tys",
+                    "title": "Thanks for completing this typeform\nNow *create your own* — it's free, easy, & beautiful",
+                    "type": "thankyou_screen",
+                    "properties": {
+                      "button_text": "Create a *typeform*",
+                      "show_button": true,
+                      "share_icons": false,
+                      "button_mode": "default_redirect"
+                    },
+                    "attachment": {
+                      "type": "image",
+                      "href": "https://public-assets.typeform.com/public/admin/2dpnUBBkz2VN.gif"
+                    }
+                  }
+                ],
+                "settings": {
+                  "partial_responses_to_all_integrations": true
+                }
+              },
+              "answers": [
+                {
+                  "type": "text",
+                  "text": "matheus",
+                  "field": {
+                    "id": "BHm5U4Xm5zgY",
+                    "type": "short_text",
+                    "ref": "87a61045-a40d-4937-ab29-07ae07c15739"
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "lyra",
+                  "field": {
+                    "id": "VwPqsp1DYpuo",
+                    "type": "short_text",
+                    "ref": "9031e309-1383-4b97-a8c2-3832973f9663"
+                  }
+                },
+                {
+                  "type": "phone_number",
+                  "phone_number": "+12015550123",
+                  "field": {
+                    "id": "pEmdCoYh0EGk",
+                    "type": "phone_number",
+                    "ref": "a9751cd5-24fc-40d6-ade4-f8e6ecffdc2f"
+                  }
+                },
+                {
+                  "type": "email",
+                  "email": "matheus.lyra2@gmail.com",
+                  "field": {
+                    "id": "vNEL03Pvs2X0",
+                    "type": "email",
+                    "ref": "11e01d13-def2-448a-b816-cba50a92036a"
+                  }
+                },
+                {
+                  "type": "choice",
+                  "choice": {
+                    "id": "fM3wanUMAgIT",
+                    "label": "Small (1-50)",
+                    "ref": "f3c513ef-3f7d-4083-813f-27b757800923"
+                  },
+                  "field": {
+                    "id": "hGlCLlE1Swjo",
+                    "type": "multiple_choice",
+                    "ref": "129392af-90ae-4738-9683-2b57e4ebb283"
+                  }
+                },
+                {
+                  "type": "number",
+                  "number": 8000,
+                  "field": {
+                    "id": "jXsQLqQ0gESH",
+                    "type": "number",
+                    "ref": "049a9354-2db7-4377-b872-ed357d615f9a"
+                  }
+                },
+                {
+                  "type": "choice",
+                  "choice": {
+                    "id": "kmmE4xXkiU9Z",
+                    "label": "High",
+                    "ref": "95a752da-7f9d-4a8a-a91b-fe80ca9baada"
+                  },
+                  "field": {
+                    "id": "beb4sxr3DqdD",
+                    "type": "multiple_choice",
+                    "ref": "f8e5e9b9-787c-447c-981d-6748aa8cfef9"
+                  }
+                }
+              ],
+              "ending": {
+                "id": "DefaultTyScreen",
+                "ref": "default_tys"
+              }
+            }
+          },
+          "webhookUrl": "https://primary-production-818e.up.railway.app/webhook/006c3ab9-a542-4b39-8238-6faa1c586e27",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "setFields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setFields": {
+      "main": [
+        [
+          {
+            "node": "Conditional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conditional": {
+      "main": [
+        [
+          {
+            "node": "setConditions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "setConditions": {
+      "main": [
+        [
+          {
+            "node": "allExist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "allExist?": {
+      "main": [
+        [
+          {
+            "node": "leadTemperature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "leadTemperature": {
+      "main": [
+        [
+          {
+            "node": "leadsSheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "leadsSheet": {
+      "main": [
+        [
+          {
+            "node": "Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead": {
+      "main": [
+        [
+          {
+            "node": "sendNotification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sendNotification": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "91fb4474-1e28-422e-aed9-2bc630371a75",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f563112dc14c32a4d29847fe131a82bf0875e46e5013ab27e704379e16f626f7"
+  },
+  "id": "LW7K5bRUyRw1vCQ6",
+  "tags": []
+}

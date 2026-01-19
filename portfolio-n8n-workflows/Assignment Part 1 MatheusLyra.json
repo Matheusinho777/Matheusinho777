@@ -1,0 +1,427 @@
+{
+  "name": "Assignment Part 1 RubyLabs MatheusLyra",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "CV Upload",
+        "formDescription": "CV Upload for the HR",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is your name?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "What is your e-mail?",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Upload your CV",
+              "fieldType": "file",
+              "multipleFiles": false,
+              "acceptFileTypes": ".pdf",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -864,
+        112
+      ],
+      "id": "b252fd5e-07b4-49e1-9b44-cabdc3c9113b",
+      "name": "On form submission",
+      "webhookId": "79e78d36-8bc7-48b3-94e4-5dbcc8bfbe24"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mistral.ai/v1/ocr",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "mistralCloudApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral-ocr-latest\",\n  \"document\": {\n    \"type\": \"document_url\",\n    \"document_url\": \"{{ $json.webContentLink }}\"\n  }\n}",
+        "options": {}
+      },
+      "id": "a4ce8497-b6d9-40c8-893f-5b5049f2785a",
+      "name": "Mistral DOC OCR",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -448,
+        112
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "mistralCloudApi": {
+          "id": "T3FP7WvNsNuIe7WH",
+          "name": "Mistral Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "Upload_your_CV",
+        "name": "={{ $json['What is your name?'] }} CV",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "https://drive.google.com/drive/folders/xxxxxxxxxxxx",
+          "mode": "url"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -640,
+        112
+      ],
+      "id": "208cd3c8-1357-4224-84a7-e3fc3ff0e23f",
+      "name": "uploadFile",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "2LpD8cjgQhLLYEWt",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const pages = $input.first().json.pages\nconst allMarkdown = pages.map(page => page.markdown).join(\"\\n\\n\");\nreturn [\n  {\n    json: {\n      combinedMarkdown: allMarkdown\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        112
+      ],
+      "id": "9abf6891-a420-46f9-8257-c64a68f84dfd",
+      "name": "combinedMarkdown"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/14xxxxxxxxxxxxxxxxx",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "",
+          "mode": "list",
+          "cachedResultName": "",
+          "cachedResultUrl": ""
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -48,
+        112
+      ],
+      "id": "de3f025f-e15b-4fc3-8fcf-f1972859ce7e",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "xnRKobPlGd8ge7Ww",
+          "name": "matheus Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant that matches candidates to job openings based on their resume.\n\nYou will receive:\n- A candidate's resume (plain text)\n- An array of open job positions (in JSON format)\n\nYour tasks:\n1. Extract key information from the resume:\n   - Name\n   - Skills\n   - Work experience\n   - Relevant achievements\n2. Calculate the total match score by following the point system:\n   - Skills: 40 points (each matching skill adds points)\n   - Experience: 30 points (points based on years of experience)\n   - Qualifications: 20 points (points for certifications and education)\n   - Location: 5 points (if the candidate is located in the required area)\n   - Job Type: 5 points (if the candidate matches the job type)\n3. If the match score is ≥ 65, call the tool `notifyHR` with:\n   - `job_id`\n   - `candidate_name`\n   - `match_score`\n   - `reason`\n4. If the match score is < 65, call the tool `returnNegative` with:\n   - `candidate_name`\n   - `reason` (explain why the candidate did not match)\n\n---\nHere is the candidate's resume:\n{{ $('combinedMarkdown').item.json.combinedMarkdown }}\n\n---\nHere are the available job openings:\n{{ $json.JobOpenings.toJsonString() }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        448,
+        112
+      ],
+      "id": "ea1f6c97-8d88-4196-a6b8-906279cdac01",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send a message in Slack when we found a good match for the job opening",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "xxxxxxxxxxxxx",
+          "mode": "id"
+        },
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message_Text', ``, 'string') }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slackTool",
+      "typeVersion": 2.3,
+      "position": [
+        800,
+        368
+      ],
+      "id": "56a350aa-0ddb-4dfb-a24e-a7f22944837a",
+      "name": "notifyHR",
+      "webhookId": "d6e078e2-dd33-400f-b538-9a8e502e1485",
+      "credentials": {
+        "slackApi": {
+          "id": "MqKURZMPH3WAcywk",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "JobOpenings",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        192,
+        112
+      ],
+      "id": "7f68454e-b74d-4bd9-b9af-e091002a3bce",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        400
+      ],
+      "id": "19bab2c7-d4dd-4a6c-915d-396bb317f08b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "vzTJ3KKoqtJBYczz",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Send a message in Gmail when the candidate does not reach the minimum score",
+        "sendTo": "={{ $('On form submission').item.json['What is your e-mail?'] }}",
+        "subject": "Role at RubyLabs",
+        "message": "=Hi {{ $('On form submission').item.json['What is your name?'] }}. First of all we want to thank you for your time dedicated to apply to this role, unfortunatelly it did not met our criteria, but your CV is stored in our database and we might reach out to you soon if there is a role in our company that suits you! ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        608,
+        352
+      ],
+      "id": "ddbc7a32-8ae6-4ab6-98bf-819d51d38732",
+      "name": "returnNegative",
+      "webhookId": "0513583c-83d6-4998-91c0-4fb71a727f63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "AIctYrngqfaZp3fi",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Form submission + store the CV in a folder in google drive (with the option to public access with the link in order to Mistral reach it",
+        "height": 580,
+        "width": 420,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        -80
+      ],
+      "id": "98c3250b-6a9e-424b-8f19-7333f419a194",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Send this url of the file to Mistral OCR model + combine the markdowns (if the CV has more than 1 page)",
+        "height": 580,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        -80
+      ],
+      "id": "d8f416f7-5037-40c9-aea0-e6357a89ba05",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Gather all the job openings at the spreadsheet and aggregate them in one Array to send to the AI Agent\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nhttps://docs.google.com/spreadsheets/d/14oYS8tPEwJ9GkUKmyTyKnRmojjLCdR5P3kObzLTPaT8/edit?usp=sharing",
+        "height": 580,
+        "width": 400,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        -80
+      ],
+      "id": "a79d6a6f-9d78-48fc-8d87-03a3bfe7b430",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## AI Agent that recieves the Markdown of the CV, and based on the logic below, if it reaches 65 points it triggers the notifyHR tool that sends a message to a channel in Slack, if it doesnt reach 65 point, sends a e-mail to the candidate\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n- Skills: 40 points (each matching skill adds points)\n   - Experience: 30 points (points based on years of experience)\n   - Qualifications: 20 points (points for certifications and education)\n   - Location: 5 points (if the candidate is located in the required area)\n   - Job Type: 5 points (if the candidate matches the job type)",
+        "height": 760,
+        "width": 580
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        320,
+        -80
+      ],
+      "id": "ec800346-3c73-4d9b-8d44-9b93a4d7e7d2",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "uploadFile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mistral DOC OCR": {
+      "main": [
+        [
+          {
+            "node": "combinedMarkdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "uploadFile": {
+      "main": [
+        [
+          {
+            "node": "Mistral DOC OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combinedMarkdown": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "notifyHR": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "returnNegative": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b8997085-340b-41ed-9a1d-d57c52eeda31",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f563112dc14c32a4d29847fe131a82bf0875e46e5013ab27e704379e16f626f7"
+  },
+  "id": "F8j6p5oIngJ7LvP9",
+  "tags": []
+}

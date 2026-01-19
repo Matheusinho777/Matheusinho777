@@ -1,0 +1,310 @@
+{
+  "name": "oauth2 Bitrix24 xyzCompany (example)",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth.bitrix.info/oauth/token/",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "client_id",
+              "value": "local.xxxxxxxxxxxxx"
+            },
+            {
+              "name": "client_secret",
+              "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            {
+              "name": "code",
+              "value": "={{ $json.query.code }}"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "https://n8n-url-xxxxxxxxx/webhook/oauth-bitrix-xyzCompany"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        288,
+        208
+      ],
+      "id": "fb4e1f4b-5bb3-4356-af3e-94cdaad0fc92",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "content": "https://xyzCompany.bitrix24.com/oauth/authorize/?client_id=local.xxxxxxxxxxxxx&response_type=code&redirect_uri=https://n8n-url-xxxxxx.com/webhook/oauth-bitrix-xyzCompany",
+        "height": 100,
+        "width": 800
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "49040bd1-a6e8-4963-a737-c5975920924d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 40
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        400
+      ],
+      "id": "8f1b3c97-6a1b-4320-81b4-a11b1324c8d2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://oauth.bitrix.info/oauth/token/",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            },
+            {
+              "name": "client_id",
+              "value": "local.xxxxxxxxxxxxx"
+            },
+            {
+              "name": "client_secret",
+              "value": "xxxxxxxxxxxxxxxxxxxxxxxx"
+            },
+            {
+              "name": "refresh_token",
+              "value": "={{ $json.refresh_token }}"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "https://n8n-url-xxxxxxxxxxxx/webhook/oauth-bitrix-xyzCompany"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        400
+      ],
+      "id": "077c979e-9f54-4552-991f-8bb41a615bf5",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "Oauth_Bitrix24",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "cliente_name",
+              "keyValue": "xyzCompany"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        288,
+        400
+      ],
+      "id": "a28fe25c-7ca3-4e02-b011-eaa92567de13",
+      "name": "getRow",
+      "credentials": {
+        "supabaseApi": {
+          "id": "DTV65ZGl1PtTLt5J",
+          "name": "meu Supa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "Oauth_Bitrix24",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "cliente_name",
+              "condition": "eq",
+              "keyValue": "xyzCompany"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "access_token",
+              "fieldValue": "={{ $json.access_token }}"
+            },
+            {
+              "fieldId": "refresh_token",
+              "fieldValue": "={{ $json.refresh_token }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        736,
+        400
+      ],
+      "id": "03907537-375e-4a06-ad1f-0b08936abfc8",
+      "name": "updateRow",
+      "credentials": {
+        "supabaseApi": {
+          "id": "DTV65ZGl1PtTLt5J",
+          "name": "meu Supa"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "path": "oauth-bitrix-xyzCompany",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        64,
+        208
+      ],
+      "id": "892f2f1c-b525-47bf-b1b5-87d3f18a970e",
+      "name": "oauth-bitrix24-xyzCompany",
+      "webhookId": "62298d46-f616-46a3-8934-75d951e25556"
+    },
+    {
+      "parameters": {
+        "tableId": "Oauth_Bitrix24",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "cliente_name",
+              "fieldValue": "xyzCompany"
+            },
+            {
+              "fieldId": "access_token",
+              "fieldValue": "={{ $json.access_token }}"
+            },
+            {
+              "fieldId": "refresh_token",
+              "fieldValue": "={{ $json.refresh_token }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        208
+      ],
+      "id": "2e3a6a06-39c2-4c38-b799-34b4f7da3df4",
+      "name": "createRow",
+      "credentials": {
+        "supabaseApi": {
+          "id": "DTV65ZGl1PtTLt5J",
+          "name": "Supa"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "createRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "getRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "updateRow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getRow": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "oauth-bitrix24-xyzCompany": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5b715927-6789-49d8-998d-19558a722e4e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f563112dc14c32a4d29847fe131a82bf0875e46e5013ab27e704379e16f626f7"
+  },
+  "id": "qyWIYkJm345z0RY6",
+  "tags": []
+}
