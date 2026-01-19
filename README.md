@@ -9,7 +9,7 @@ Currently, I work as a consultant focused on **Bitrix24, API Integrations, and A
 ---
 
 ### 🤖 Talk to my AI Agent (Live Demo)
-Don't just read about my skills—**experience them**. I built a RAG (Retrieval-Augmented Generation) agent powered by **n8n** and **Supabase Vector Store** that has "read" my entire CV and project history.
+Don't just read about my skills, **experience them**. I built a RAG (Retrieval-Augmented Generation) agent powered by **n8n** and **Supabase Vector Store** that has "read" my entire CV and project history.
 
 You can ask it specific questions like: *"How did Matheus reduce SaaS costs?"* or *"Explain the Real Estate automation project."*
 
