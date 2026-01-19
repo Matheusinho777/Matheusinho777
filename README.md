@@ -50,7 +50,7 @@ You can ask it specific questions like: *"How did Matheus reduce SaaS costs?"* o
 ---
 
 ### 💼 Highlighted Experience
-* **API Management:** Extensive hands-on experience with **Postman**, integrating legacy systems (ERPs) with modern tools via Webhooks.
+* **API Management:** Extensive hands-on experience with **Postman**, API documentation and integrating systems with modern tools via Webhooks, APIs and N8N.
 * **Monitoring:** Implementing **Uptime Kuma** and **Zabbix** to ensure high availability for critical automation workflows.
 * **Cost Reduction:** Specialist in architecting solutions that minimize reliance on excessive monthly SaaS subscriptions.
 
