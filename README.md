@@ -29,7 +29,7 @@ Currently, I work as a consultant focused on **Bitrix24, API Integrations, and A
 **Artificial Intelligence & Integrations**
 [![OpenAI](https://img.shields.io/badge/OpenAI-Assistants_API-412991?style=flat&logo=openai)](https://openai.com)
 [![Bitrix24](https://img.shields.io/badge/Bitrix24-CRM_Integration-00aeef?style=flat)](https://www.bitrix24.com)
-[![Evolution API](https://img.shields.io/badge/Evolution_API-WhatsApp-25D366?style=flat&logo=whatsapp)](https://doc.evolution-api.com/)
+[![Evolution API](https://img.shields.io/badge/Evolution_API-WhatsApp-25D366?style=flat&logo=whatsapp)](https://doc.evolution-api.com/v1/en/get-started/introduction)
 
 ---
 
