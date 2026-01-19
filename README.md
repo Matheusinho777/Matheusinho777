@@ -36,7 +36,7 @@ Currently, I work as a consultant focused on **Bitrix24, API Integrations, and A
 ### 🔭 What I'm building right now
 * 🤖 **Corporate AI Agents:** Developing assistants that triage leads within **Bitrix24** and automate responses via WhatsApp using LLMs.
 * ☁️ **Self-Hosted Stack:** Migrating automations from expensive SaaS platforms to custom infrastructure using **Docker and Hetzner** (n8n, Typebot, Evolution API).
-* 📊 **Business Intelligence:** Integrating CRM data with **Power BI** for real-time visualization.
+* 📊 **Process Optimization:** Integrating CRM data with custom solutions for clients.
 
 ---
 
