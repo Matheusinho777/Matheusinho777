@@ -12,7 +12,7 @@ Currently, I work as a consultant focused on **Bitrix24, API Integrations, and A
 
 **Automation & Low-Code**
 ![n8n](https://img.shields.io/badge/n8n-Workflow_Automation-ff6f61?style=flat&logo=n8n)
-![Typebot](https://img.shields.io/badge/Typebot-Chatbots-orange?style=flat)
+![Dify](https://img.shields.io/badge/Dify-AI_Agents-155EEF?style=flat&logo=dify&logoColor=white)
 ![Power Automate](https://img.shields.io/badge/Power_Automate-Microsoft-blue?style=flat)
 
 **Development & Data**
